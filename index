@@ -1,0 +1,48 @@
+    <title>Chat en Tiempo Real</title>
+</head>
+<body>
+    <div id="chat-container">
+        <ul id="messages"></ul>
+        <form id="messageForm">
+            <div class="input-group">
+                <input id="messageInput" class="form-control" autocomplete="off" placeholder="Escribe un mensaje..." />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('message', function(data) {
+            var ul = document.getElementById('messages');
+            var li = document.createElement('li');
+            li.className = 'message';
+            var sender = document.createElement('div');
+            sender.className = 'sender';
+            sender.appendChild(document.createTextNode(data.sender));
+            var text = document.createElement('div');
+            text.className = 'text';
+            text.appendChild(document.createTextNode(data.message));
+            li.appendChild(sender);
+            li.appendChild(text);
+            ul.appendChild(li);
+        });
+
+        document.getElementById('messageForm').onsubmit = function(e) {
+            e.preventDefault();
+            var messageInput = document.getElementById('messageInput');
+            if (messageInput.value.trim() !== '') {
+                socket.emit('message', { sender: 'Cliente', message: messageInput.value.trim() });
+                messageInput.value = '';
+            }
+        };
+    </script>
+</body>
+</html>
